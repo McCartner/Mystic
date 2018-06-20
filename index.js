@@ -1,6 +1,10 @@
 const Discord = require("discord.js");
-
+const ffmpeg = require("ffmpeg-binaries");
+const opusscript = require("opusscript");
+const ytdl = require("ytdl-core");
 const client = new Discord.Client();
+const fs = require("fs");
+
 const prefix = "!";
 
 client.on("ready", () => {
@@ -54,18 +58,40 @@ client.on("message", async message => {
 
     if(command === "play"){
       //client.user.setActivity(type: ("listening"), `${song}`)
+      if (message.member.voiceChannel) {
+      message.member.voiceChannel.join()
+        .catch(console.log);
+    } else {
+      message.reply('You are not in a voice channel!');
+    }
     }
 
     if(command === "stop"){
-
+      if (message.member.voiceChannel) {
+      message.member.voiceChannel.leave();
+    };
     }
 
     if(command === "radio"){
       //client.user.setActivity(type: ("listening"), `${song}`)
+      if (args.length === 0)
+return message.channel.send("I Need A Stream URL!");
+
+  const streamURL = args.slice(0, args.length).join(" ");
+
+    if (message.member.voiceChannel) {
+      message.member.voiceChannel.join()
+        .then(connection => {
+          connection.playArbitraryInput(`${streamURL}`);
+        })
+        .catch(console.log);
+    } else {
+      message.reply('You are not in a voice channel!');
+    }
     }
 
     if(command === "help"){
-      message.channel.send("```Prefix: ! \nCommands:\n-Ping \n-Clear \n-Play(comming soon) \n-Stop(comming soon) \n-Radio(comming soon)```");
+      message.channel.send("```Prefix: ! \nCommands:\n-Ping \n-Clear \n-Status(comming soon) \n-Play(comming soon) \n-Stop(comming soon) \n-Radio(comming soon)```");
     }
 
 });
