@@ -10,7 +10,7 @@ const prefix = "!";
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
     client.user.setStatus("Online")
-    client.user.setActivity('YouTube', { type: 'LISTENING' })
+    client.user.setActivity("Type: !Help")
 });
 
 client.on("guildMemberAdd", function (member) {
@@ -44,9 +44,9 @@ client.on("message", async message => {
       if (message.member.voiceChannel) {
       message.member.voiceChannel.join()
         //message.channel.send("player")
-        //client.user.setActivity(type: ("listening"), `${song}`)
         //message.react("buttons")
         //if(reactions = 2) do something..
+        //client.user.setActivity('YouTube', { type: 'LISTENING' })
     } else {
       message.reply('You are not in a voice channel!');
     }
@@ -59,7 +59,6 @@ client.on("message", async message => {
     }
 
     if(command === "radio"){
-      //client.user.setActivity(type: ("listening"), `${song}`)
       if (args.length === 0)
 return message.channel.send("I Need A Stream URL!");
 
@@ -70,6 +69,7 @@ return message.channel.send("I Need A Stream URL!");
         .then(connection => {
           connection.playArbitraryInput(`${streamURL}`);
         })
+        client.user.setActivity('Radio', { type: 'LISTENING' });
         .catch(console.log);
     } else {
       message.reply('You are not in a voice channel!');
