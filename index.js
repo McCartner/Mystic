@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
-//const ffmpeg = require("ffmpeg-binaries");
-//const opusscript = require("opusscript");
-//const ytdl = require("ytdl-core");
+const ffmpeg = require("ffmpeg-binaries");
+const opusscript = require("opusscript");
+const ytdl = require("ytdl-core");
 const client = new Discord.Client();
 const fs = require("fs");
 
