@@ -70,7 +70,7 @@ return message.channel.send("I Need A Stream URL!");
         .then(connection => {
           connection.playArbitraryInput(`${streamURL}`);
         })
-        client.user.setActivity('Radio', { type: 'LISTENING' });
+        client.user.setActivity('Radio', { type: 'LISTENING' })
         .catch(console.log);
     } else {
       message.reply('You are not in a voice channel!');
