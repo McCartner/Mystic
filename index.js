@@ -10,7 +10,7 @@ const prefix = "!";
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
     client.user.setStatus("Online")
-    clinet.user.setActiviy("Type: !help")
+    client.user.setActiviy("Type: !help")
 });
 
 client.on("guildMemberAdd", function (member) {
