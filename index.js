@@ -10,6 +10,7 @@ const prefix = "!";
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
     client.user.setStatus("Online")
+    clinet.user.setActiviy("Type: !help")
 });
 
 client.on("guildMemberAdd", function (member) {
@@ -23,23 +24,6 @@ client.on("message", async message => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
-
-    if(command === "status"){
-    if(!message.member.roles.some(r=>["Owner", "Admin", "Mystic"].includes(r.name)) ) return;
-      message.channel.send("```Status: \n1. Online \n2. Idle \n3. Do Not Disturb \n4. Invisible```")
-        .then(function (message) {
-          message.react("1⃣");
-          setTimeout(function(){
-            message.react("2⃣");
-          }, 500);
-          setTimeout(function(){
-            message.react("3⃣");
-          }, 1000);
-          setTimeout(function(){
-            message.react("4⃣");
-          }, 1500);
-    			});
-    }
 
     if (command === "ping") {
       var m = await message.channel.send("Ping?");
@@ -57,10 +41,12 @@ client.on("message", async message => {
     }
 
     if(command === "play"){
-      //client.user.setActivity(type: ("listening"), `${song}`)
       if (message.member.voiceChannel) {
       message.member.voiceChannel.join()
-        .catch(console.log);
+        //message.channel.send("player")
+        //client.user.setActivity(type: ("listening"), `${song}`)
+        //message.react("buttons")
+        //if(reactions = 2) do something..
     } else {
       message.reply('You are not in a voice channel!');
     }
@@ -91,7 +77,7 @@ return message.channel.send("I Need A Stream URL!");
     }
 
     if(command === "help"){
-      message.channel.send("```Prefix: ! \nCommands:\n-Ping \n-Clear \n-Status(comming soon) \n-Play(comming soon) \n-Stop(comming soon) \n-Radio(comming soon)```");
+      message.channel.send("```Prefix: ! \nCommands:\n-Ping \n-Clear \n-Radio \n-Stop \n-Play(comming soon)```");
     }
 
 });
