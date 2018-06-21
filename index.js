@@ -10,7 +10,7 @@ const prefix = "!";
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
     client.user.setStatus("Online")
-    client.user.setActivity("Type: !help")
+    client.user.setActivity('YouTube', { type: 'LISTENING' })
 });
 
 client.on("guildMemberAdd", function (member) {
