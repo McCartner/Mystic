@@ -55,6 +55,7 @@ client.on("message", async message => {
     if(command === "stop"){
       if (message.member.voiceChannel) {
       message.member.voiceChannel.leave();
+      client.user.setActivity("Type: !Help");
     };
     }
 
