@@ -61,16 +61,40 @@ client.on("message", async message => {
 
     if(command === "radio"){
       if (args.length === 0)
-return message.channel.send("I Need A Stream URL!");
+return message.channel.send("```Radio Stations:\n1. CoolRadio \n2. Balkan Dj \n3. Antena \n4. Noise FM Radio \n5. Heart Radio```");
 
-  const streamURL = args.slice(0, args.length).join(" ");
+  var number = args.join(" ");
 
+  if(number == 1){
+    var streamURL = "http://stream01.iloveradio.de/iloveradio1.mp3"
+    client.user.setActivity('I Love Radio', { type: 'LISTENING' })
+
+  }
+    else if (number == 2) {
+      var streamURL = "http://stream01.iloveradio.de/iloveradio2.mp3"
+      client.user.setActivity('I ❤2 Dance', { type: 'LISTENING' })
+
+    }
+    else if (number == 3) {
+      var streamURL = "http://stream01.iloveradio.de/iloveradio9.mp3"
+      client.user.setActivity('I ❤ Top 100 Charts', { type: 'LISTENING' })
+
+    }
+    else if (number == 4) {
+      var streamURL = "http://stream01.iloveradio.de/iloveradio3.mp3"
+      client.user.setActivity('I ❤ To Battle', { type: 'LISTENING' })
+
+    }
+    else if (number == 5) {
+      var streamURL = "http://stream01.iloveradio.de/iloveradio6.mp3"
+      client.user.setActivity('I ❤# Driest', { type: 'LISTENING' })
+
+    }
     if (message.member.voiceChannel) {
       message.member.voiceChannel.join()
-        .then(connection => {
-          connection.playArbitraryInput(`${streamURL}`);
+      .then(connection => {
+          connection.playArbitraryInput(streamURL);
         })
-        client.user.setActivity('Radio', { type: 'LISTENING' })
         .catch(console.log);
     } else {
       message.reply('You are not in a voice channel!');
