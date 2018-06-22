@@ -61,7 +61,7 @@ client.on("message", async message => {
 
     if(command === "radio"){
       if (args.length === 0)
-return message.channel.send("```Radio Stations:\n1. CoolRadio \n2. Balkan Dj \n3. Antena \n4. Noise FM Radio \n5. Heart Radio```");
+return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Dance \n3. I ❤ Top 100 Charts \n4. I ❤ To Battle \n5. I ❤# Driest```");
 
   var number = args.join(" ");
 
@@ -72,7 +72,7 @@ return message.channel.send("```Radio Stations:\n1. CoolRadio \n2. Balkan Dj \n3
   }
     else if (number == 2) {
       var streamURL = "http://stream01.iloveradio.de/iloveradio2.mp3"
-      client.user.setActivity('I ❤2 Dance', { type: 'LISTENING' })
+      client.user.setActivity('I ❤ 2 Dance', { type: 'LISTENING' })
 
     }
     else if (number == 3) {
