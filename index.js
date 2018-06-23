@@ -61,7 +61,7 @@ client.on("message", async message => {
 
     if(command === "radio"){
       if (args.length === 0)
-return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Dance \n3. I ❤ Top 100 Charts \n4. I ❤ To Battle \n5. I ❤# Driest```");
+return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Dance \n3. I ❤ Top 100 Charts \n4. I ❤ To Battle \n5. I ❤# Driest \6. Balkan DJ Radio```");
 
   var number = args.join(" ");
 
@@ -90,10 +90,15 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
       client.user.setActivity('I ❤# Driest', { type: 'LISTENING' })
 
     }
+    else if (number == 6) {
+      var streamURL = "http://balkan.dj.topstream.net:8070/;*.mp3"
+      client.user.setActivity('Balkan DJ Radio', { type: 'LISTENING' })
+
+    }
     if (message.member.voiceChannel) {
       message.member.voiceChannel.join()
       .then(connection => {
-          connection.playArbitraryInput(streamURL);
+          connection.playArbitraryInput(streamURL, { volume: "0.2" });
         })
         .catch(console.log);
     } else {
