@@ -61,7 +61,7 @@ client.on("message", async message => {
 
     if(command === "radio"){
       if (args.length === 0)
-return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Dance \n3. I ❤ Top 100 Charts \n4. I ❤ To Battle \n5. I ❤# Driest \6. Balkan DJ Radio```");
+return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Dance \n3. I ❤ Top 100 Charts \n4. I ❤ To Battle \n5. I ❤# Driest \n6. Balkan DJ Radio```");
 
   var number = args.join(" ");
 
