@@ -26,6 +26,7 @@ client.on("message", async message => {
     const command = args.shift().toLowerCase();
 
     if (command === "ping") {
+      if (!args.length === 0) return;
       var m = await message.channel.send("Ping?");
       m.edit("Ping is `" + `${m.createdTimestamp - message.createdTimestamp}` + "` ms.");
   }
@@ -53,6 +54,7 @@ client.on("message", async message => {
     }
 
     if(command === "stop"){
+      if (!args.length === 0) return;
       if (message.member.voiceChannel) {
       message.member.voiceChannel.leave();
       client.user.setActivity("Type: !Help");
@@ -107,6 +109,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
     }
 
     if(command === "help"){
+      if (!args.length === 0) return;
       message.channel.send("```Prefix: ! \nCommands:\n-Ping \n-Clear \n-Radio \n-Stop \n-Play(comming soon)```");
     }
 
