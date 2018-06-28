@@ -100,7 +100,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
     if (message.member.voiceChannel) {
       message.member.voiceChannel.join()
       .then(connection => {
-          connection.playArbitraryInput(streamURL, { volume: "0.2" });
+          connection.playArbitraryInput(streamURL, { volume: "0.05" });
         })
         .catch(console.log);
     } else {
