@@ -108,11 +108,6 @@ if(command === "play"){
       client.user.setActivity("Type: !Help");
     };
     }
-    if(command === "leave"){
-      if (!args.length === 0) return;
-      message.member.voiceChannel.leave()
-      client.user.setActivity("Type: !Help");
-    }
 
     if(command === "radio"){
       if (args.length === 0)
