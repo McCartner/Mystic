@@ -84,17 +84,10 @@ if(command === "play"){
 					var video = await youtube.getVideoByID(videos[videoIndex - 1].id);
 				} catch (err) {
 					console.error(err);
-					return message.channel.send('No results.');
-					if (true) {
-                				msg.delete(1000)
-            				}
-					
+					return message.channel.send('No results.');					
 				}
 			}
 			return handleVideo(video, message, voiceChannel);
-            if (true) {
-                msg.delete(1000)
-            }
 		}
     } else {
       message.reply('You are not in a voice channel!');
