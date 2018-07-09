@@ -4,6 +4,10 @@ const opusscript = require("opusscript");
 const ytdl = require("ytdl-core");
 const client = new Discord.Client();
 const fs = require("fs");
+const YouTube = require('simple-youtube-api');
+const youtube = new YouTube(process.env.youtube);
+const queue = new Map();
+
 
 const prefix = "!";
 
@@ -24,6 +28,12 @@ client.on("message", async message => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
+    
+    var searchString = args.slice(1).join(' ');
+    var url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
+    var serverQueue = queue.get(message.guild.id);
+    var voiceChannel = message.member.voiceChannel;
+
 
     if (command === "ping") {
       if (!args.length === 0) return;
@@ -41,13 +51,47 @@ client.on("message", async message => {
         .catch(error => message.reply(`I Just Got An Error: ${error}`));
     }
 
-    if(command === "play"){
-      if (message.member.voiceChannel) {
-      message.member.voiceChannel.join()
-        //message.channel.send("player")
-        //message.react("buttons")
-        //if(reactions = 2) do something..
-        //client.user.setActivity('YouTube', { type: 'LISTENING' })
+if(command === "play"){
+      if (voiceChannel) {
+      if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
+			var playlist = await youtube.getPlaylist(url);
+			var videos = await playlist.getVideos();
+			for (const video of Object.values(videos)) {
+				var video2 = await youtube.getVideoByID(video.id);
+				await handleVideo(video2, message, voiceChannel, true);
+			}
+			return message.channel.send(`Playlist: **${playlist.title}**`);
+		} else {
+			try {
+				var video = await youtube.getVideo(url);
+			} catch (error) {
+				try {
+					var videos = await youtube.searchVideos(searchString, 5);
+					var index = 0;
+					message.channel.send(`__**Song selection:**__${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}Please provide a value to select one of the search results ranging from 1-10.
+					`);
+					try {
+						var response = await message.channel.awaitMessages(message2 => message2.content > 0 && message2.content < 11, {
+							maxMatches: 1,
+							time: 20000,
+							errors: ['time']
+						});
+					} catch (err) {
+						console.error(err);
+						return msg.delete(1000);
+					}
+					var videoIndex = parseInt(response.first().content);
+					var video = await youtube.getVideoByID(videos[videoIndex - 1].id);
+				} catch (err) {
+					console.error(err);
+					return message.channel.send('No results.');
+				}
+			}
+			return handleVideo(video, message, voiceChannel);
+            if (true) {
+                msg.delete(1000)
+            }
+		}
     } else {
       message.reply('You are not in a voice channel!');
     }
@@ -115,8 +159,72 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
 
     if(command === "help"){
       if (!args.length === 0) return;
-      message.channel.send("```Prefix: ! \nCommands:\n-Ping \n-Clear \n-Radio \n-Stop \n-Play(comming soon)```");
+      message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play```");
     }
+
+  async function handleVideo(video, message, voiceChannel, playlist = false) {
+  	var serverQueue = queue.get(message.guild.id);
+  	console.log(video);
+  	var song = {
+  		id: video.id,
+  		title: video.title,
+  		url: `https://www.youtube.com/watch?v=${video.id}`
+  	};
+  	if (!serverQueue) {
+  		var queueConstruct = {
+  			textChannel: message.channel,
+  			voiceChannel: voiceChannel,
+  			connection: null,
+  			songs: [],
+  			volume: 5,
+  			playing: true
+  		};
+  		queue.set(message.guild.id, queueConstruct);
+
+  		queueConstruct.songs.push(song);
+
+  		try {
+  			var connection = await voiceChannel.join();
+  			queueConstruct.connection = connection;
+  			play(message.guild, queueConstruct.songs[0]);
+  		} catch (error) {
+  			console.error(`I could not join the voice channel: ${error}`);
+  			queue.delete(message.guild.id);
+  			return message.channel.send(`I could not join the voice channel: ${error}`);
+  		}
+  	} else {
+  		serverQueue.songs.push(song);
+  		console.log(serverQueue.songs);
+  		if (playlist) return undefined;
+  		else return message.channel.send(`**${song.title}** has been added to the queue!`);
+  	}
+  	return undefined;
+  }
+    function play(guild, song) {
+  	var serverQueue = queue.get(guild.id);
+
+  	if (!song) {
+  		serverQueue.voiceChannel.leave();
+      client.user.setActivity("Type: !Help");
+  		queue.delete(guild.id);
+  		return;
+  	}
+  	console.log(serverQueue.songs);
+
+  	const dispatcher = serverQueue.connection.playStream(ytdl(song.url))
+  		.on('end', reason => {
+        message.channel.send('``The queue of song is end.``');
+  			if (reason === 'Stream is not generating quickly enough.') console.log('Song ended.');
+  			else console.log(reason);
+  			serverQueue.songs.shift();
+  			play(guild, serverQueue.songs[0]);
+  		})
+  		.on('error', error => console.error(error));
+  	dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+
+  	serverQueue.textChannel.send(`Playing: **${song.title}**`);
+    client.user.setActivity(`${song.title}`, { type: 'LISTENING' });
+  }
 
 });
 
