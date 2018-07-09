@@ -68,7 +68,7 @@ if(command === "play"){
 				try {
 					var videos = await youtube.searchVideos(searchString, 5);
 					var index = 0;
-					message.channel.send(`__**Song selection:**__${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}Please provide a value to select one of the search results ranging from 1-10.
+					message.channel.send(`__**Song selection:**__ \n${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}Please provide a value to select one of the search results ranging from 1-10.
 					`);
 					try {
 						var response = await message.channel.awaitMessages(message2 => message2.content > 0 && message2.content < 11, {
@@ -85,6 +85,10 @@ if(command === "play"){
 				} catch (err) {
 					console.error(err);
 					return message.channel.send('No results.');
+					if (true) {
+                				msg.delete(1000)
+            				}
+					
 				}
 			}
 			return handleVideo(video, message, voiceChannel);
