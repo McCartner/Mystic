@@ -30,7 +30,7 @@ client.on("message", async message => {
     const command = args.shift().toLowerCase();
     
     var searchString = args.slice(1).join(' ');
-    var url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
+    var url = args ? args.replace(/<(.+)>/g, '$1') : '';
     var serverQueue = queue.get(message.guild.id);
     var voiceChannel = message.member.voiceChannel;
 
@@ -97,10 +97,10 @@ if(command === "play"){
     if(command === "volume"){
       if (!voiceChannel) return message.channel.send('You are not in a voice channel!');
       		if (!serverQueue) return message.channel.send('There is nothing playing.');
-      		if (!args[1]) return message.channel.send(`The current volume is: **${serverQueue.volume}**`);
-      		serverQueue.volume = args[1];
-      		serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1] / 10);
-      		return message.channel.send(`I set the volume to: **${args[1]}**`);
+      		if (!args) return message.channel.send(`The current volume is: **${serverQueue.volume}**`);
+      		serverQueue.volume = args;
+      		serverQueue.connection.dispatcher.setVolumeLogarithmic(args / 10);
+      		return message.channel.send(`I set the volume to: **${args}**`);
     }
 
     if(command === "stop"){
