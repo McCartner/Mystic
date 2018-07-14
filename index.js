@@ -93,6 +93,15 @@ if(command === "play"){
       message.reply('You are not in a voice channel!');
     }
     }
+	
+    if(command === "volume"){
+      if (!voiceChannel) return message.channel.send('You are not in a voice channel!');
+      		if (!serverQueue) return message.channel.send('There is nothing playing.');
+      		if (!args[1]) return message.channel.send(`The current volume is: **${serverQueue.volume}**`);
+      		serverQueue.volume = args[1];
+      		serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1] / 10);
+      		return message.channel.send(`I set the volume to: **${args[1]}**`);
+    }
 
     if(command === "stop"){
       if (!args.length === 0) return;
@@ -151,7 +160,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
 
     if(command === "help"){
       if (!args.length === 0) return;
-      message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play```");
+      message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play \n    -Volume```");
     }
 
   async function handleVideo(video, message, voiceChannel, playlist = false) {
@@ -212,7 +221,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
   			play(guild, serverQueue.songs[0]);
   		})
   		.on('error', error => console.error(error));
-  	dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+  	dispatcher.setVolumeLogarithmic(serverQueue.volume / 10);
 
   	serverQueue.textChannel.send(`Playing: **${song.title}**`);
     client.user.setActivity(`${song.title}`, { type: 'LISTENING' });
