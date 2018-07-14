@@ -30,7 +30,7 @@ client.on("message", async message => {
     const command = args.shift().toLowerCase();
     
     var searchString = args.slice(1).join(' ');
-    var url = args ? args.replace(/<(.+)>/g, '$1') : '';
+    var url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
     var serverQueue = queue.get(message.guild.id);
     var voiceChannel = message.member.voiceChannel;
 
@@ -93,15 +93,6 @@ if(command === "play"){
       message.reply('You are not in a voice channel!');
     }
     }
-	
-    if(command === "volume"){
-      if (!voiceChannel) return message.channel.send('You are not in a voice channel!');
-      		if (!serverQueue) return message.channel.send('There is nothing playing.');
-      		if (!args) return message.channel.send(`The current volume is: **${serverQueue.volume}**`);
-      		serverQueue.volume = args;
-      		serverQueue.connection.dispatcher.setVolumeLogarithmic(args / 10);
-      		return message.channel.send(`I set the volume to: **${args}**`);
-    }
 
     if(command === "stop"){
       if (!args.length === 0) return;
@@ -160,7 +151,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
 
     if(command === "help"){
       if (!args.length === 0) return;
-      message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play \n    -Volume```");
+      message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play```");
     }
 
   async function handleVideo(video, message, voiceChannel, playlist = false) {
@@ -221,7 +212,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
   			play(guild, serverQueue.songs[0]);
   		})
   		.on('error', error => console.error(error));
-  	dispatcher.setVolumeLogarithmic(serverQueue.volume / 10);
+  	dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
 
   	serverQueue.textChannel.send(`Playing: **${song.title}**`);
     client.user.setActivity(`${song.title}`, { type: 'LISTENING' });
