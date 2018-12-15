@@ -100,7 +100,7 @@ return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Da
     }
     }
 
-    if(command === "help"){
+    else if(command === "help"){
       if (!args.length === 0) return;
       message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play```");
     }
