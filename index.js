@@ -113,7 +113,7 @@ client.on("message", async message => {
     if (args[0]) {
         let from_language = "auto"
         let to_language = "en"
-        let tobe_translated = message.content.slice(prefix.length + command.length + 1)
+        let tobe_translated = message.content.slice(config.prefix.length + command.length + 1)
         if (args[0].startsWith("from:")) {
             from_language = args[0].slice(5)
             tobe_translated = tobe_translated.slice(args[0].length + 1)
@@ -144,11 +144,11 @@ client.on("message", async message => {
                 .setThumbnail("https://cdn.dribbble.com/users/1341307/screenshots/3641494/google_translate.gif")
             message.channel.send(embed)
         }).ca0tch(err => {
-            message.channel.send("```example:\n" + prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
+            message.channel.send("```example:\n" + config.prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
         });
     }
     else {
-      message.channel.send("```example:\n" + prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
+      message.channel.send("```example:\n" + config.prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
     }
 }
 
