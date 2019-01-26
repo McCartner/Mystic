@@ -9,7 +9,6 @@
   "author": "McCartner",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.4.2",
-    "google-translate-api": "^2.3.0"
+    "discord.js": "^11.4.2"
   }
 }
