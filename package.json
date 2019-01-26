@@ -1,5 +1,5 @@
 {
-  "name": "discord",
+  "name": "discord-bot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,11 +9,7 @@
   "author": "McCartner",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.3.2",
-    "ffmpeg": "0.0.4",
-    "ffmpeg-binaries": "^3.2.2-3",
-    "opusscript": "0.0.6",
-    "simple-youtube-api": "^5.0.2",
-    "ytdl-core": "^0.20.4"
+    "discord.js": "^11.4.2",
+    "google-translate-api": "^2.3.0"
   }
 }
