@@ -1,20 +1,20 @@
 const Discord = require("discord.js");
-const ffmpeg = require("ffmpeg-binaries");
-const opusscript = require("opusscript");
-const ytdl = require("ytdl-core");
 const client = new Discord.Client();
-const fs = require("fs");
-const YouTube = require('simple-youtube-api');
-const youtube = new YouTube(process.env.youtube);
-const queue = new Map();
+const translate = require("google-translate-api");
 
+const config = require("./config.json");
 
-const prefix = "!";
+client.login(process.env.token);
 
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
-    client.user.setStatus("Online")
-    client.user.setActivity("Type: !Help")
+    client.user.setStatus("online") //online, away, dnd, invisible
+    client.user.setActivity("Anime", { type: "WATCHING" }) //WATCHING, LISTENING, PLAYING
+});
+
+client.on("guildCreate", (guild) => {
+  //send message with request to put role on top
+  //message.channel.send("Please move `Mystic` role above others to unlock full potential")
 });
 
 client.on("guildMemberAdd", function (member) {
@@ -23,201 +23,184 @@ client.on("guildMemberAdd", function (member) {
 });
 
 client.on("message", async message => {
+
     if (message.author.bot) return;
-    if (!message.content.startsWith(prefix)) return;
+    if (!message.content.startsWith(config.prefix)) return;
 
-    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
-    
-    var searchString = args.slice(1).join(' ');
-    var url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
-    var serverQueue = queue.get(message.guild.id);
-    var voiceChannel = message.member.voiceChannel;
+    const author = message.author;
+
+//commands
+    if (command === "todo" || command === "soon") {
+      message.channel.send("-mute\n-unmute\n-mention\n-help\n-tempban")
+    }
+    else if (command === "info" || command === "about") {
+      let avatar = client.user.displayAvatarURL;
+      let servers = client.guilds.size; // Server Count
+      let users = 0; // Start of user count
+      let channels = client.channels.size;
+      client.guilds.map(g => users += g.memberCount);
+
+      let embed = new Discord.RichEmbed()
+      .setAuthor("About Bot", avatar)
+      .setColor(message.guild.member(client.user).displayHexColor)
+      //.setTitle('Community Channels')
+      .setThumbnail(avatar)
+      .addField('Servers', servers, true)
+      .addField('Users', users, true)
+      //.addField('Channels', channels, true)
+      .addField("Prefix", config.prefix)
+      .addField("Owner", "McCartner#4119");
+
+      message.channel.send(embed);
+    }
+    else if (command === "help" || command === "commands") {
+      //if(args[0] == "help"){
+        //message.reply("Usage: ");
+        //return;
+      //}
+
+      let avatar = client.user.displayAvatarURL;
+      let embed = new Discord.RichEmbed()
+      .setAuthor("Commands", avatar)
+      .setColor(message.guild.member(client.user).displayHexColor)
+      .setThumbnail(avatar)
+      .addField("Translate", `${config.prefix}` + "translate from:<leng> to:<leng> <text>")
+      .addField("Mute", `${config.prefix}` + "mute <@user> <time>")
+      .addField("Unmute", `${config.prefix}` + "unmute <@user>")
+      .addField("clear", `${config.prefix}` + "clear")
+      .addField("Ping", `${config.prefix}` + "ping")
+      .addField("About", `${config.prefix}` + "about")
+      .addField("Suppport Server", "https://discord.gg/n6ubaAD")
+      .addField("Owner", "McCartner#4119")
+      .setFooter("Requested By: " + message.author.username, message.author.avatarURL);
+
+      message.channel.send(embed);
+      }
+    else if (command === "mute" || command === "tempmute") {
+      if(message.member.hasPermission("ADMINISTRATOR") || message.member.hasPermission("MANAGE_MESSAGES" || author.id !== config.owner)) {
+
+        }
+        //check if person has more administrator than bot
+        //remove all permissions in every channel
+
+      }
+
+    else if (command === "unmute") {
+      if(message.member.hasPermission("ADMINISTRATOR") || message.member.hasPermission("MANAGE_MESSAGES" || author.id !== config.owner)) {
+        //remove permission limit in every channel for that person
 
 
-    if (command === "ping") {
-      if (!args.length === 0) return;
-      var m = await message.channel.send("Ping?");
-      m.edit("Ping is `" + `${m.createdTimestamp - message.createdTimestamp}` + "` ms.");
-  }
-
-    if(command === "clear") {
-      if(!message.member.roles.some(r=>["Owner", "Admin", "Mystic"].includes(r.name)) ) return;
-    const deleteCount = parseInt(args[0], 10);
-    if(!deleteCount || deleteCount < 2 || deleteCount > 100)
-        return message.channel.send("I Need Freaking Number Of Messages To Delete Them! `(2~100)`");
-    const fetched = await message.channel.fetchMessages({limit: deleteCount});
-    message.channel.bulkDelete(fetched)
-        .catch(error => message.reply(`I Just Got An Error: ${error}`));
+      }
     }
 
-if(command === "play"){
-      if (voiceChannel) {
-      if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
-			var playlist = await youtube.getPlaylist(url);
-			var videos = await playlist.getVideos();
-			for (const video of Object.values(videos)) {
-				var video2 = await youtube.getVideoByID(video.id);
-				await handleVideo(video2, message, voiceChannel, true);
-			}
-			return message.channel.send(`Playlist: **${playlist.title}**`);
-		} else {
-			try {
-				var video = await youtube.getVideo(url);
-			} catch (error) {
-				try {
-					var videos = await youtube.searchVideos(searchString, 5);
-					var index = 0;
-					message.channel.send(`__**Song selection:**__ \n${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}Please provide a value to select one of the search results ranging from 1-10.
-					`);
-					try {
-						var response = await message.channel.awaitMessages(message2 => message2.content > 0 && message2.content < 11, {
-							maxMatches: 1,
-							time: 20000,
-							errors: ['time']
-						});
-					} catch (err) {
-						console.error(err);
-						return msg.delete(1000);
-					}
-					var videoIndex = parseInt(response.first().content);
-					var video = await youtube.getVideoByID(videos[videoIndex - 1].id);
-				} catch (err) {
-					console.error(err);
-					return message.channel.send('No results.');					
-				}
-			}
-			return handleVideo(video, message, voiceChannel);
-		}
-    } else {
-      message.reply('You are not in a voice channel!');
-    }
+//fully done
+    else if (command === "ping") {
+      message.channel.send("The fuck you want me to say? pong um no go fuck yourself");
     }
 
-    if(command === "stop"){
-      if (!args.length === 0) return;
-      if (message.member.voiceChannel) {
-      message.member.voiceChannel.leave();
-      client.user.setActivity("Type: !Help");
-    };
+    else if(command === "clear" || command === "purge") {
+      if(message.member.hasPermission("ADMINISTRATOR") || message.member.hasPermission("MANAGE_MESSAGES" || author.id !== config.owner)) {
+        message.delete();
+        if(!args[0]) return message.channel.send("Please provide a number.")
+        message.channel.bulkDelete(args[0]).then(() => {
+          message.channel.send(`Cleared ${args[0]} messages.`).then(message => message.delete(5000));
+        });
+      }}
+
+    else if (command === "translate") {
+    if (args[0]) {
+        let from_language = "auto"
+        let to_language = "en"
+        let tobe_translated = message.content.slice(prefix.length + command.length + 1)
+        if (args[0].startsWith("from:")) {
+            from_language = args[0].slice(5)
+            tobe_translated = tobe_translated.slice(args[0].length + 1)
+            if (args[1].startsWith("to:")) {
+                to_language = args[1].slice(3)
+                tobe_translated = tobe_translated.slice(args[1].length + 1)
+            }
+        } else if (args[0].startsWith("to:")) {
+            to_language = args[0].slice(3)
+            tobe_translated = tobe_translated.slice(args[0].length + 1)
+            if (args[1].startsWith("from:")) {
+                from_language = args[1].slice(5)
+                tobe_translated = tobe_translated.slice(args[1].length + 1)
+            }
+        }
+        translate(tobe_translated, {
+            from: from_language,
+            to: to_language
+        }).then(res => {
+            final_text = res.text
+            from_language = res.from.language.iso
+            if (res.from.text.value) tobe_translated = res.from.text.value
+            let embed = new Discord.RichEmbed()
+                .setTitle("Translate")
+                .setColor(message.guild.member(client.user).displayHexColor)
+                .addField("`from: " + from_language + "`", "```" + tobe_translated + "```")
+                .addField("`to: " + to_language + "`", "```" + final_text + "```")
+                .setThumbnail("https://cdn.dribbble.com/users/1341307/screenshots/3641494/google_translate.gif")
+            message.channel.send(embed)
+        }).ca0tch(err => {
+            message.channel.send("```example:\n" + prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
+        });
+    }
+    else {
+      message.channel.send("```example:\n" + prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
+    }
+}
+
+//owner things
+//reboot
+    else if (command === "reboot" || command === "restart" || command === "reload") {
+      if(author.id !== config.owner) return;
+      client.destroy()
+      client.login(config.token)
+    }
+//activity
+    else if (command === "game" || command === "play" || command === "playing") {
+      if(author.id !== config.owner) return;
+      const game = args.join(" ")
+      client.user.setActivity(game, { type: "PLAYING" })
+    }
+    else if (command === "watch" || command === "watching") {
+      if(author.id !== config.owner) return;
+      const game = args.join(" ")
+      client.user.setActivity(game, { type: "WATCHING" })
+    }
+    else if (command === "listen" || command === "listening") {
+      if(author.id !== config.owner) return;
+      const game = args.join(" ")
+      client.user.setActivity(game, { type: "LISTENING" })
+    }
+    else if (command === "stream" || command === "streaming") {
+      if(author.id !== config.owner) return;
+      if (args.length === 0) client.user.setActivity("some games", {type: "streaming", url: "https://www.twitch.tv/McCartnerOfficial"})
+      else {
+        const game = args.join(" ")
+        client.user.setActivity(game, {type: "streaming", url: "https://www.twitch.tv/McCartnerOfficial"})
+      }
     }
 
-    if(command === "radio"){
-      if (args.length === 0)
-return message.channel.send("```Radio Stations:\n1. I Love Radio \n2. I ❤ 2 Dance \n3. I ❤ Top 100 Charts \n4. I ❤ To Battle \n5. I ❤# Driest \n6. Balkan DJ Radio```");
-
-  var number = args.join(" ");
-
-  if(number == 1){
-    var streamURL = "http://stream01.iloveradio.de/iloveradio1.mp3"
-    client.user.setActivity('I Love Radio', { type: 'LISTENING' })
-
-  }
-    else if (number == 2) {
-      var streamURL = "http://stream01.iloveradio.de/iloveradio2.mp3"
-      client.user.setActivity('I ❤ 2 Dance', { type: 'LISTENING' })
-
+//status
+    else if (command === "online") {
+      if(author.id !== config.owner) return;
+      client.user.setStatus("online")
     }
-    else if (number == 3) {
-      var streamURL = "http://stream01.iloveradio.de/iloveradio9.mp3"
-      client.user.setActivity('I ❤ Top 100 Charts', { type: 'LISTENING' })
-
+    else if (command === "idle" || command === "away") {
+      if(author.id !== config.owner) return;
+      client.user.setStatus("idle")
     }
-    else if (number == 4) {
-      var streamURL = "http://stream01.iloveradio.de/iloveradio3.mp3"
-      client.user.setActivity('I ❤ To Battle', { type: 'LISTENING' })
-
+    else if (command === "dnd" || command === "donotdisturb") {
+      if(author.id !== config.owner) return;
+      client.user.setStatus("dnd")
     }
-    else if (number == 5) {
-      var streamURL = "http://stream01.iloveradio.de/iloveradio6.mp3"
-      client.user.setActivity('I ❤# Driest', { type: 'LISTENING' })
-
-    }
-    else if (number == 6) {
-      var streamURL = "http://balkan.dj.topstream.net:8070/;*.mp3"
-      client.user.setActivity('Balkan DJ Radio', { type: 'LISTENING' })
-
-    }
-    if (message.member.voiceChannel) {
-      message.member.voiceChannel.join()
-      .then(connection => {
-          connection.playArbitraryInput(streamURL, { volume: "0.05" });
-        })
-        .catch(console.log);
-    } else {
-      message.reply('You are not in a voice channel!');
-    }
+    else if (command === "offline" || command === "invisible") {
+      if(author.id !== config.owner) return;
+      client.user.setStatus("invisible")
     }
 
-    if(command === "help"){
-      if (!args.length === 0) return;
-      message.channel.send("```Prefix: ! \nCommands:\n    -Ping \n    -Clear \n    -Radio \n    -Stop \n    -Play```");
-    }
-
-  async function handleVideo(video, message, voiceChannel, playlist = false) {
-  	var serverQueue = queue.get(message.guild.id);
-  	console.log(video);
-  	var song = {
-  		id: video.id,
-  		title: video.title,
-  		url: `https://www.youtube.com/watch?v=${video.id}`
-  	};
-  	if (!serverQueue) {
-  		var queueConstruct = {
-  			textChannel: message.channel,
-  			voiceChannel: voiceChannel,
-  			connection: null,
-  			songs: [],
-  			volume: 5,
-  			playing: true
-  		};
-  		queue.set(message.guild.id, queueConstruct);
-
-  		queueConstruct.songs.push(song);
-
-  		try {
-  			var connection = await voiceChannel.join();
-  			queueConstruct.connection = connection;
-  			play(message.guild, queueConstruct.songs[0]);
-  		} catch (error) {
-  			console.error(`I could not join the voice channel: ${error}`);
-  			queue.delete(message.guild.id);
-  			return message.channel.send(`I could not join the voice channel: ${error}`);
-  		}
-  	} else {
-  		serverQueue.songs.push(song);
-  		console.log(serverQueue.songs);
-  		if (playlist) return undefined;
-  		else return message.channel.send(`**${song.title}** has been added to the queue!`);
-  	}
-  	return undefined;
-  }
-    function play(guild, song) {
-  	var serverQueue = queue.get(guild.id);
-
-  	if (!song) {
-  		serverQueue.voiceChannel.leave();
-      client.user.setActivity("Type: !Help");
-  		queue.delete(guild.id);
-  		return;
-  	}
-  	console.log(serverQueue.songs);
-
-  	const dispatcher = serverQueue.connection.playStream(ytdl(song.url))
-  		.on('end', reason => {
-        message.channel.send('``The queue of song is end.``');
-  			if (reason === 'Stream is not generating quickly enough.') console.log('Song ended.');
-  			else console.log(reason);
-  			serverQueue.songs.shift();
-  			play(guild, serverQueue.songs[0]);
-  		})
-  		.on('error', error => console.error(error));
-  	dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-
-  	serverQueue.textChannel.send(`Playing: **${song.title}**`);
-    client.user.setActivity(`${song.title}`, { type: 'LISTENING' });
-  }
-
-});
-
-client.login(process.env.token);
+//end
+  });
