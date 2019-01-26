@@ -1,6 +1,5 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-const translate = require("google-translate-api");
 
 const config = require("./config.json");
 
@@ -108,49 +107,6 @@ client.on("message", async message => {
           message.channel.send(`Cleared ${args[0]} messages.`).then(message => message.delete(5000));
         });
       }}
-
-    else if (command === "translate") {
-    if (args[0]) {
-        let from_language = "auto"
-        let to_language = "en"
-        let tobe_translated = message.content.slice(config.prefix.length + command.length + 1)
-        if (args[0].startsWith("from:")) {
-            from_language = args[0].slice(5)
-            tobe_translated = tobe_translated.slice(args[0].length + 1)
-            if (args[1].startsWith("to:")) {
-                to_language = args[1].slice(3)
-                tobe_translated = tobe_translated.slice(args[1].length + 1)
-            }
-        } else if (args[0].startsWith("to:")) {
-            to_language = args[0].slice(3)
-            tobe_translated = tobe_translated.slice(args[0].length + 1)
-            if (args[1].startsWith("from:")) {
-                from_language = args[1].slice(5)
-                tobe_translated = tobe_translated.slice(args[1].length + 1)
-            }
-        }
-        translate(tobe_translated, {
-            from: from_language,
-            to: to_language
-        }).then(res => {
-            final_text = res.text
-            from_language = res.from.language.iso
-            if (res.from.text.value) tobe_translated = res.from.text.value
-            let embed = new Discord.RichEmbed()
-                .setTitle("Translate")
-                .setColor(message.guild.member(client.user).displayHexColor)
-                .addField("`from: " + from_language + "`", "```" + tobe_translated + "```")
-                .addField("`to: " + to_language + "`", "```" + final_text + "```")
-                .setThumbnail("https://cdn.dribbble.com/users/1341307/screenshots/3641494/google_translate.gif")
-            message.channel.send(embed)
-        }).ca0tch(err => {
-            message.channel.send("```example:\n" + config.prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
-        });
-    }
-    else {
-      message.channel.send("```example:\n" + config.prefix +"Translate from:fr to:en Bonjour, comment ça va?```")
-    }
-}
 
 //owner things
 //reboot
